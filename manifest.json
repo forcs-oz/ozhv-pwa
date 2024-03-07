@@ -1,0 +1,34 @@
+{
+    "name": "OZ HTML5 Viewer Progressive Web App",
+    "short_name": "OZHV-PWA",
+    "description": "Offline Running Test for OZ HTML5 Viewer",
+    "lang": "en-US",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "display_override": [ "window-controls-overlay" ],
+    "theme_color": "#E85D14",
+    "background_color": "#E85D14",
+    "icons": [
+        {
+            "src": "icon/icon-16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "icon/icon-32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "icon/icon-96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "icon/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+    ]
+}
