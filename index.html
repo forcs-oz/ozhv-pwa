@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PWA Sample</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <link rel="icon" href="./icon/icon-16.png" type="image/png">
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+        <link rel="manifest" href="ozhv-pwa.webmanifest" />
+        <!-- <link rel="manifest" href="manifest.json" /> -->
+
+        <script src="https://code.jquery.com/jquery-2.0.3.min.js"></script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" type="text/css"/>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+        
+        <link rel="stylesheet" href="ozhv/ui.dynatree.css" type="text/css"/>
+        <script type="text/javascript" src="ozhv/jquery.dynatree.js" charset="utf-8"></script>
+        <script type="text/javascript" src="ozhv/OZJSViewer.js" charset="utf-8"></script>
+
+        <style>
+            html {
+                width: 100%;
+                height: 100%;
+                display: flex;
+            }
+            body {
+                flex: 1 1 auto;
+            }
+            #OZViewer {
+                width: 99%;
+                height: 99%;
+            }
+
+            .pwa-prompt-dlg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 30%;
+                user-select: none;
+
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .pwa-prompt-dlg .container {
+                flex: 1 1 auto;
+                margin-top: 50px;
+                border-radius: 5px;
+                padding: 50px;
+
+                background-color: rgba(150, 50, 0, 0.9);
+                color: white;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                align-items: center;
+            }
+            .pwa-prompt-dlg button {
+                padding: 1em;
+                margin: 0.5em;
+                border: 2px solid rgba(0,0,0,0);
+                border-radius: 3px;
+
+                background-color: #555555;
+                color: white;
+            }
+            .pwa-prompt-dlg button:hover {
+                border-color: red;
+            }
+            .pwa-prompt-dlg .btn-ok {
+                background-color: darkgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="OZViewer"></div>
+
+        <script type="text/javascript">
+            /* ***** ***** User-Defined Settings ***** ***** */
+
+            // OZ HTML5 Viewer
+            var OZHV_pDiv = OZViewer;
+            var OZHV_strPath = "ozhv/";
+            var OZHV_pOpt = new Object();
+            var OZHV_pResPaths = new Array();
+            function SetOZViewerParameters() {
+                OZHV_pDiv.sendToActionScript("information.debug", "true");
+                OZHV_pDiv.sendToActionScript("etcmenu.showconsole", "true");
+                OZHV_pDiv.sendToActionScript("comment.all", "true");
+                OZHV_pDiv.sendToActionScript("viewer.emptyframe", "true");
+                return true;
+            }
+            function SetOZViewerOpt() {
+                OZHV_pOpt = new Object();
+
+                OZHV_pOpt["rendering_mode"] = "svg";
+            }
+            function SetOZViewerResourceList() {
+                OZHV_pResPaths = new Array();
+
+                // Image Res
+                OZHV_pResPaths.push("OZJSViewer_ozimg_pc.js");
+
+                // Text Res (en_US)
+                OZHV_pResPaths.push("res/chartres_en_US.xml");
+                OZHV_pResPaths.push("res/viewer_error_msg_en_US.xml");
+                OZHV_pResPaths.push("res/viewer_server_error_msg_en_US.xml");
+
+                // DialogueFlow Modules
+                OZHV_pResPaths.push("DialogueFlow/DialogueFlow.js");
+                OZHV_pResPaths.push("OZSignLib.js");
+
+                // Scanner (Seal, Card, ...) Modules
+                OZHV_pResPaths.push("zxing.min.js");
+                OZHV_pResPaths.push("opencv.js");
+                OZHV_pResPaths.push("OZRecognition.js");
+
+                // Other Modules
+                OZHV_pResPaths.push("OZJSViewer_ozscript.js");
+                OZHV_pResPaths.push("OZJSViewer_export.js");
+                OZHV_pResPaths.push("OZJSViewer_chart.js");
+            }
+
+            // PWA Service Worker
+            var SW_strPath = "ozhv-pwa-sw.js";
+            var SW_pOpt = new Object();
+            SW_pOpt.scope = "./";
+
+
+            // PWA Install Prompt
+            function OnPWAInstallPrompt(pCallback) {
+                var pDlg = document.createElement("div");
+                pDlg.classList.add("pwa-prompt-dlg");
+                document.body.appendChild(pDlg);
+
+                var pContainer = document.createElement("div");
+                pContainer.classList.add("container");
+                pDlg.appendChild(pContainer);
+
+                var pQuestionNode = document.createElement("div");
+                pQuestionNode.innerHTML = "You can install OZ HTML5 Viewer PWA.<br>Do you want install it on your device?";
+                pContainer.appendChild(pQuestionNode);
+                
+                var pBtnArea = document.createElement("div");
+                pBtnArea.classList.add("btnarea");
+                pContainer.appendChild(pBtnArea);
+
+                var pBtnInstall = document.createElement("button");
+                pBtnInstall.classList.add("btn-ok");
+                pBtnInstall.innerHTML = "Install";
+                pBtnInstall.addEventListener("click", function (e) {
+                    pCallback(true);
+                    document.body.removeChild(pDlg);
+                });
+                pBtnArea.appendChild(pBtnInstall);
+
+                var pBtnCancel = document.createElement("button");
+                pBtnCancel.classList.add("btn-cancel");
+                pBtnCancel.innerHTML = "Cancel";
+                pBtnCancel.addEventListener("click", function (e) {
+                    pCallback(false);
+                    document.body.removeChild(pDlg);
+                });
+                pBtnArea.appendChild(pBtnCancel);
+            }
+
+            /* ***** ***** User-Defined Settings ***** ***** */
+        </script>
+
+        <script type="text/javascript">
+            var OZHV_pResDataMap = new Object();
+            var OZHV_nResLoading = -1;
+            var SW_bLoaded = false;
+
+            function StartOZViewer() {
+                if (!SW_bLoaded || OZHV_nResLoading > 0) {
+                    return false;
+                }
+                SetOZViewerOpt();
+                OZHV_pOpt["use_pwa"] = true;
+                start_ozjs(OZHV_pDiv.id, OZHV_strPath, OZHV_pOpt);
+                return true;
+            }
+
+            function OnFinishLoadRes() {
+                if (OZHV_nResLoading != 0) {
+                    return;
+                }
+                OZHV_nResLoading = -1;
+                StartOZViewer();
+            }
+            function OnLoadOneRes(strResURL) {
+                fetch(strResURL)
+                    .then(function (pResponse) {
+                        return pResponse.blob();
+                    })
+                    .then(function (blob) {
+                        return new Promise((resolve, _) => {
+                            const reader = new FileReader();
+                            reader.onloadend = function () {
+                                resolve(reader.result);
+                            }
+                            reader.readAsDataURL(blob);
+                        });
+                    })
+                    .then(function (strBase64) {
+                        var strFind = ";base64,";
+                        var nFind = strBase64.indexOf(strFind);
+                        if (nFind > 0) {
+                            OZHV_pResDataMap[strResURL] = strBase64.slice(nFind + strFind.length);
+                        }
+                        OZHV_nResLoading -= 1;
+                        OnFinishLoadRes();
+                    })
+                    .catch(function(pReason) {
+                        OZHV_nResLoading -= 1;
+                        OnFinishLoadRes();
+                    });
+            }
+            function StartLoadRes() {
+                SetOZViewerResourceList();
+                OZHV_nResLoading = OZHV_pResPaths.length;
+                OZHV_pResPaths.forEach(function (strResPath) {
+                    OnLoadOneRes(OZHV_strPath + strResPath);
+                });
+            }
+
+            async function activateServiceWorker() {
+                if ("serviceWorker" in navigator) {
+                    var pServiceWorker = await navigator.serviceWorker.getRegistration(SW_strPath);
+                    if (!pServiceWorker) {
+                        pServiceWorker = await navigator.serviceWorker.register(SW_strPath, SW_pOpt);
+                    }
+                    if (pServiceWorker) {
+                        return pServiceWorker;
+                    }
+                    throw new Error("Failed to register ServiceWorker.");
+                }
+                throw new Error("ServiceWorker is not supported.");
+            }
+            
+        </script>
+
+        <script type="text/javascript">
+            window["SetOZParamters_" + OZHV_pDiv.id] = function() {
+                return SetOZViewerParameters();
+            };
+            window["getOZResource_local"] = function (strURL) {
+                if (OZHV_pResDataMap[strURL] != null) {
+                    return OZHV_pResDataMap[strURL];
+                }
+                return "@error@";
+            };
+
+            window.addEventListener("beforeinstallprompt", function (event) {
+                event.preventDefault();
+                OnPWAInstallPrompt(function(bInstall) {
+                    if (bInstall) {
+                        event.prompt();
+                    }
+                });
+            });
+
+            activateServiceWorker()
+                .then(function(pReg) {
+                    navigator.serviceWorker.ready.then(function() {
+                        SW_bLoaded = true;
+                        StartLoadRes();
+                    });
+                })
+                .catch(function (pReason) {
+                    // Not Supported
+                    alert("<!> " + pReason.message);
+                    console.warn(pReason);
+                });
+        </script>
+    </body>
+</html>
