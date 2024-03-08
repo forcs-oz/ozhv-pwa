@@ -29,7 +29,7 @@ async function onGetFetch(pReq) {
             const response = await fetch(pReq);
             const cache = await caches.open(strCacheName);
             console.log(`[Service Worker] Caching new resource: ${pReq.url}`);
-            caches.put(pReq, response.clone());
+            cache.put(pReq, response.clone());
             return response;
         } catch (e) {
         }
