@@ -236,9 +236,16 @@
                     if (!pServiceWorker) {
                         pServiceWorker = await navigator.serviceWorker.register(SW_strPath, SW_pOpt);
                         if (pServiceWorker) {
-                            if (confirm("ServiceWorker is registered successfullly. The page will be reloaded")) {
-                                location.reload();
+                            function checkActivation() {
+                                if (pServiceWorker.active.state == "activated") {
+                                    if (confirm("ServiceWorker is initially registered.\nThe page will be reloaded.")) {
+                                        location.reload();
+                                    }
+                                } else {
+                                    setTimeout(checkActivation, 500);
+                                }
                             }
+                            setTimeout(checkActivation, 500);
                         }
                     }
                     if (pServiceWorker) {
