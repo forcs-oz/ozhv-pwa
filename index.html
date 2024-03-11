@@ -235,6 +235,11 @@
                     var pServiceWorker = await navigator.serviceWorker.getRegistration(SW_strPath);
                     if (!pServiceWorker) {
                         pServiceWorker = await navigator.serviceWorker.register(SW_strPath, SW_pOpt);
+                        if (pServiceWorker) {
+                            if (confirm("ServiceWorker is registered successfullly. The page will be reloaded")) {
+                                location.reload();
+                            }
+                        }
                     }
                     if (pServiceWorker) {
                         return pServiceWorker;
